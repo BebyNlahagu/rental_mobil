@@ -1,0 +1,16 @@
+{
+  "name": "Rental Mobil Premium",
+  "short_name": "Rental Mobil",
+  "description": "Rental mobil terpercaya dengan armada berkualitas dan harga kompetitif",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563EB",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://rentalmobil.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow admin routes
+Disallow: /admin/
+
+# Allow important pages
+Allow: /
+Allow: /cars
+Allow: /how-it-works
+Allow: /contact
