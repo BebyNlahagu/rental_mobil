@@ -13,7 +13,7 @@ export default defineConfig(async () => {
   return {
     plugins,
     server: {
-      allowedHosts: ['3da0-202-65-225-144.ngrok-free.app']
+      allowedHosts: ['3dfc-103-156-118-34.ngrok-free.app']
     }
   };
 })

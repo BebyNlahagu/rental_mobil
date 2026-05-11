@@ -187,7 +187,7 @@ export function Footer() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-slate-500 text-sm">
-              © {currentYear} Rental Mobil Premium. All rights reserved.
+              &copy; {currentYear} Rental Mobil Premium. All rights reserved.
             </p>
             <div className="flex items-center space-x-6 mt-4 md:mt-0">
               <Link to="/terms" className="text-slate-500 hover:text-slate-300 text-sm transition-colors">

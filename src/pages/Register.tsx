@@ -3,10 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Car, User, Mail, Lock, Eye, EyeOff, ArrowRight, 
-  CheckCircle, AlertCircle, Phone 
+  CheckCircle, AlertCircle, Phone, Loader2 
 } from 'lucide-react';
 import { SEO } from '../components/SEO';
-import { addUserToDB } from '../lib/supabase';
+import { addUserToDB, signInWithGoogle, signInWithFacebook } from '../lib/supabase';
 
 export function Register() {
   const navigate = useNavigate();
@@ -25,6 +25,7 @@ export function Register() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [oauthLoading, setOAuthLoading] = useState<'google' | 'facebook' | null>(null);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -115,6 +116,38 @@ export function Register() {
     setTimeout(() => {
       navigate('/login');
     }, 2000);
+  };
+
+  const handleGoogleRegister = async () => {
+    setOAuthLoading('google');
+    try {
+      const { url, error } = await signInWithGoogle();
+      if (error) {
+        setErrors({ form: error });
+      } else if (url) {
+        window.location.href = url;
+      }
+    } catch (error) {
+      console.error('Google register error:', error);
+      setErrors({ form: 'Gagal mendaftar dengan Google' });
+    }
+    setOAuthLoading(null);
+  };
+
+  const handleFacebookRegister = async () => {
+    setOAuthLoading('facebook');
+    try {
+      const { url, error } = await signInWithFacebook();
+      if (error) {
+        setErrors({ form: error });
+      } else if (url) {
+        window.location.href = url;
+      }
+    } catch (error) {
+      console.error('Facebook register error:', error);
+      setErrors({ form: 'Gagal mendaftar dengan Facebook' });
+    }
+    setOAuthLoading(null);
   };
 
   if (registerSuccess) {
@@ -412,16 +445,28 @@ export function Register() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={handleGoogleRegister}
+                  disabled={oauthLoading !== null}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="h-5 w-5 mr-2" />
+                  {oauthLoading === 'google' ? (
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  ) : (
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="h-5 w-5 mr-2" />
+                  )}
                   <span className="text-sm font-medium text-gray-700">Google</span>
                 </button>
                 <button
                   type="button"
-                  className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={handleFacebookRegister}
+                  disabled={oauthLoading !== null}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" className="h-5 w-5 mr-2" />
+                  {oauthLoading === 'facebook' ? (
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  ) : (
+                    <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" className="h-5 w-5 mr-2" />
+                  )}
                   <span className="text-sm font-medium text-gray-700">Facebook</span>
                 </button>
               </div>

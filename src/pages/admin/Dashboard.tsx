@@ -12,6 +12,8 @@ import {
 } from 'recharts';
 import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '../../lib/utils';
 import { getCurrentUser } from '../../lib/auth';
+import { getCars } from '../../lib/carStorage';
+import { getBookingsFromDB, getPaymentsFromDB, getUsersFromDB, isSupabaseAvailable } from '../../lib/supabase';
 import type { Booking, Payment } from '../../types';
 
 export function Dashboard() {
@@ -29,46 +31,89 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => setLoading(false), 500);
+    const loadDashboard = async () => {
+      // Simulate loading
+      setTimeout(() => setLoading(false), 500);
 
-    // Load data from localStorage
-    const bookings: Booking[] = JSON.parse(localStorage.getItem('bookings') || '[]');
-    const payments: Payment[] = JSON.parse(localStorage.getItem('payments') || '[]');
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const cars = getCars();
+      const bookings: Booking[] = isSupabaseAvailable
+        ? await getBookingsFromDB()
+        : JSON.parse(localStorage.getItem('bookings') || '[]');
+      const payments: Payment[] = isSupabaseAvailable
+        ? await getPaymentsFromDB()
+        : JSON.parse(localStorage.getItem('payments') || '[]');
+      const users = isSupabaseAvailable
+        ? await getUsersFromDB()
+        : JSON.parse(localStorage.getItem('users') || '[]');
 
-    // Calculate stats
-    const totalRevenue = payments
-      .filter((p: Payment) => p.status === 'success')
-      .reduce((sum: number, p: Payment) => sum + p.amount, 0);
-    
-    const activeRentals = bookings.filter((b: Booking) => b.status === 'active').length;
-    const pendingBookings = bookings.filter((b: Booking) => b.status === 'pending').length;
-    const completedBookings = bookings.filter((b: Booking) => b.status === 'completed').length;
-    const newCustomers = users.filter((u: any) => u.role === 'customer').length;
+      // Calculate stats
+      const successfulPayments = payments.filter((p: Payment) => p.status === 'success');
+      const paidBookings = bookings.filter((b: Booking) => b.paymentStatus === 'paid');
+      const paymentRevenue = successfulPayments.reduce((sum: number, p: Payment) => sum + p.amount, 0);
+      const bookingRevenue = paidBookings.reduce((sum: number, booking: Booking) => sum + booking.totalPrice, 0);
+      const totalRevenue = paymentRevenue || bookingRevenue;
+      const activeRentals = bookings.filter((b: Booking) => b.status === 'active').length;
+      const pendingBookings = bookings.filter((b: Booking) => b.status === 'pending').length;
+      const completedBookings = bookings.filter((b: Booking) => b.status === 'completed').length;
+      const newCustomers = users.filter((u: any) => u.role === 'customer').length;
 
-    setStats({
-      totalCars: 9,
-      totalBookings: bookings.length,
-      totalRevenue,
-      activeRentals,
-      pendingBookings,
-      completedBookings,
-      newCustomers
-    });
+      setStats({
+        totalCars: cars.length,
+        totalBookings: bookings.length,
+        totalRevenue,
+        activeRentals,
+        pendingBookings,
+        completedBookings,
+        newCustomers
+      });
 
-    // Recent bookings
-    setRecentBookings(bookings.slice(-5).reverse());
+      // Recent bookings
+      const sortedBookings = [...bookings].sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return dateB - dateA;
+      });
+      setRecentBookings(sortedBookings.slice(0, 5));
 
-    // Monthly data for chart
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-    const monthlyStats = months.map((month, idx) => ({
-      name: month,
-      revenue: Math.floor(Math.random() * 50000000) + 10000000,
-      bookings: Math.floor(Math.random() * 50) + 10,
-      lastMonth: Math.floor(Math.random() * 40000000) + 10000000
-    }));
-    setMonthlyData(monthlyStats);
+      // Monthly data for chart based on payment or booking dates
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      const currentYear = new Date().getFullYear();
+      const monthlyStats = months.map((month, monthIndex) => {
+        const monthRevenue = successfulPayments.length > 0
+          ? successfulPayments
+              .filter((payment) => {
+                const date = new Date(payment.paidAt || payment.createdAt);
+                return date.getFullYear() === currentYear && date.getMonth() === monthIndex;
+              })
+              .reduce((sum, payment) => sum + payment.amount, 0)
+          : paidBookings
+              .filter((booking) => {
+                const date = new Date(booking.createdAt);
+                return date.getFullYear() === currentYear && date.getMonth() === monthIndex;
+              })
+              .reduce((sum, booking) => sum + booking.totalPrice, 0);
+
+        const monthBookings = successfulPayments.length > 0
+          ? successfulPayments.filter((payment) => {
+              const date = new Date(payment.paidAt || payment.createdAt);
+              return date.getFullYear() === currentYear && date.getMonth() === monthIndex;
+            }).length
+          : paidBookings.filter((booking) => {
+              const date = new Date(booking.createdAt);
+              return date.getFullYear() === currentYear && date.getMonth() === monthIndex;
+            }).length;
+
+        return {
+          name: month,
+          revenue: monthRevenue,
+          bookings: monthBookings,
+          lastMonth: 0
+        };
+      });
+      setMonthlyData(monthlyStats);
+    };
+
+    loadDashboard();
   }, []);
 
   const statCards = [
@@ -83,7 +128,7 @@ export function Dashboard() {
       textColor: 'text-blue-600'
     },
     { 
-      title: 'Total Pemesanan',
+      title: 'Total Pesanan',
       value: stats.totalBookings.toString(),
       icon: Calendar,
       trend: '+8.2%',
@@ -250,6 +295,30 @@ export function Dashboard() {
           <div className="space-y-4">
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
               <div className="flex items-center">
+                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mr-3">
+                  <Calendar className="h-5 w-5 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-900">Total Pesanan</p>
+                  <p className="text-xs text-slate-500">Semua booking masuk</p>
+                </div>
+              </div>
+              <span className="text-xl font-bold text-emerald-600">{stats.totalBookings}</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+              <div className="flex items-center">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                  <CreditCard className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-slate-900">Total Pendapatan</p>
+                  <p className="text-xs text-slate-500">Semua pembayaran sukses</p>
+                </div>
+              </div>
+              <span className="text-xl font-bold text-blue-600">{formatCurrency(stats.totalRevenue)}</span>
+            </div>
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+              <div className="flex items-center">
                 <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center mr-3">
                   <Clock className="h-5 w-5 text-amber-600" />
                 </div>
@@ -271,20 +340,6 @@ export function Dashboard() {
                 </div>
               </div>
               <span className="text-xl font-bold text-emerald-600">{stats.completedBookings}</span>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                  <CreditCard className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-900">Rata-rata</p>
-                  <p className="text-xs text-slate-500">Pendapatan/hari</p>
-                </div>
-              </div>
-              <span className="text-xl font-bold text-blue-600">
-                {formatCurrency(stats.totalRevenue / 30)}
-              </span>
             </div>
           </div>
         </motion.div>
@@ -334,7 +389,7 @@ export function Dashboard() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-white text-sm font-bold mr-3">
+                        <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-400 to-blue-500 flex items-center justify-center text-white text-sm font-bold mr-3">
                           {booking.customerName.charAt(0)}
                         </div>
                         <div>

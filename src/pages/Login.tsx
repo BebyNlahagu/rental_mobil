@@ -3,10 +3,10 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Car, Mail, Lock, Eye, EyeOff, ArrowRight, 
-  CheckCircle, AlertCircle 
+  CheckCircle, AlertCircle, Loader2 
 } from 'lucide-react';
 import { SEO } from '../components/SEO';
-import { authenticateUser } from '../lib/supabase';
+import { authenticateUser, signInWithGoogle, signInWithFacebook } from '../lib/supabase';
 
 export function Login() {
   const navigate = useNavigate();
@@ -25,6 +25,7 @@ export function Login() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [oauthLoading, setOAuthLoading] = useState<'google' | 'facebook' | null>(null);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -124,6 +125,38 @@ export function Login() {
     }
     
     setIsLoading(false);
+  };
+
+  const handleGoogleLogin = async () => {
+    setOAuthLoading('google');
+    try {
+      const { url, error } = await signInWithGoogle();
+      if (error) {
+        setLoginError(error);
+      } else if (url) {
+        window.location.href = url;
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
+      setLoginError('Gagal login dengan Google');
+    }
+    setOAuthLoading(null);
+  };
+
+  const handleFacebookLogin = async () => {
+    setOAuthLoading('facebook');
+    try {
+      const { url, error } = await signInWithFacebook();
+      if (error) {
+        setLoginError(error);
+      } else if (url) {
+        window.location.href = url;
+      }
+    } catch (error) {
+      console.error('Facebook login error:', error);
+      setLoginError('Gagal login dengan Facebook');
+    }
+    setOAuthLoading(null);
   };
 
   return (
@@ -311,16 +344,28 @@ export function Login() {
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={handleGoogleLogin}
+                  disabled={oauthLoading !== null}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="h-5 w-5 mr-2" />
+                  {oauthLoading === 'google' ? (
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  ) : (
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="h-5 w-5 mr-2" />
+                  )}
                   <span className="text-sm font-medium text-gray-700">Google</span>
                 </button>
                 <button
                   type="button"
-                  className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={handleFacebookLogin}
+                  disabled={oauthLoading !== null}
+                  className="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" className="h-5 w-5 mr-2" />
+                  {oauthLoading === 'facebook' ? (
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                  ) : (
+                    <img src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" className="h-5 w-5 mr-2" />
+                  )}
                   <span className="text-sm font-medium text-gray-700">Facebook</span>
                 </button>
               </div>

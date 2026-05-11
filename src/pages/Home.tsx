@@ -113,7 +113,7 @@ export function Home() {
       />
 
       {/* Hero Section - Modern Gradient */}
-      <section className="relative min-h-[700px] flex items-center overflow-hidden">
+      <section className="relative min-h-[780px] md:min-h-[820px] flex items-center overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 z-0">
           <img
@@ -121,8 +121,7 @@ export function Home() {
             alt="Hero Background"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900/95 via-slate-900/80 to-slate-900/60" />
-          {/* Animated gradient overlay */}
+          <div className="absolute inset-0 bg-slate-950/75" />
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-purple-600/20" />
         </div>
 
@@ -130,8 +129,8 @@ export function Home() {
         <div className="absolute top-20 right-20 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 left-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="max-w-3xl">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="max-w-2xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -160,34 +159,29 @@ export function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="text-xl text-slate-300 mb-10 max-w-2xl leading-relaxed"
+              className="text-xl text-slate-300 mb-10 max-w-xl leading-relaxed"
             >
-              Nikmati pengalaman berkendara dengan armada terbaru, harga transparan, 
+              Nikmati pengalaman berkendara dengan armada terbaru, harga transparan,
               dan layanan profesional 24/7 di seluruh Indonesia.
             </motion.p>
-
-            {/* Search Box */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <SearchBox />
-            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section - Glassmorphism */}
-      <section className="relative -mt-20 z-20 px-4">
+      {/* Stats Section - Premium Glassmorphism */}
+      <section className="relative -mt-12 z-20 px-4 pb-12 md:pb-16">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8"
+            className="relative bg-white/85 backdrop-blur-2xl rounded-[2rem] shadow-[0_30px_80px_rgba(15,23,42,0.15)] border border-white/40 p-8 md:p-12 overflow-hidden"
           >
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {/* Background glow effects */}
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 relative z-10">
               {stats.map((stat, index) => (
                 <motion.div
                   key={stat.label}
@@ -195,13 +189,13 @@ export function Home() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.1 }}
                   viewport={{ once: true }}
-                  className="text-center"
+                  className="text-center group"
                 >
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <stat.icon className="h-7 w-7 text-white" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
+                    <stat.icon className="h-8 w-8 text-white" />
                   </div>
-                  <p className="text-3xl font-bold text-gray-900">{stat.value}{stat.suffix}</p>
-                  <p className="text-gray-500 mt-1">{stat.label}</p>
+                  <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">{stat.value}{stat.suffix}</p>
+                  <p className="text-slate-600 mt-2 font-medium text-sm">{stat.label}</p>
                 </motion.div>
               ))}
             </div>
@@ -209,38 +203,45 @@ export function Home() {
         </div>
       </section>
 
-      {/* Car Types - Modern Grid */}
-      <section className="py-24 bg-slate-50">
+      {/* Search Box Above Fleet Choices */}
+      <section className="px-4 -mt-6 md:-mt-8 relative z-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <SearchBox />
+        </div>
+      </section>
+
+      {/* Car Types - Modern Grid */}
+      <section className="py-20 md:py-28 bg-gradient-to-b from-slate-50 to-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 md:mb-20">
             <motion.p
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              className="text-blue-600 font-semibold mb-3"
+              className="text-xs md:text-sm font-semibold uppercase tracking-[0.3em] text-blue-600 mb-4"
             >
-              PILIHAN ARMADA
+              🏎️ Pilihan Armada Kami
             </motion.p>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-5 leading-tight max-w-3xl mx-auto"
             >
-              Temukan Mobil Ideal Anda
+              Temukan Tipe Mobil yang Sempurna
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
               viewport={{ once: true }}
-              className="text-gray-600 max-w-2xl mx-auto text-lg"
+              className="text-slate-600 max-w-2xl mx-auto text-base md:text-lg leading-relaxed"
             >
-              Kami menyediakan berbagai tipe mobil berkualitas untuk setiap kebutuhan perjalanan Anda
+              Dari mobil ekonomis hingga mewah, kami memiliki opsi terbaik untuk setiap kebutuhan dan budget perjalanan Anda
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {carTypes.map((type, index) => (
               <motion.div
                 key={type.name}
@@ -248,25 +249,25 @@ export function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 viewport={{ once: true }}
-                whileHover={{ y: -10 }}
-                className="group relative rounded-3xl overflow-hidden cursor-pointer shadow-lg"
+                whileHover={{ y: -12 }}
+                className="group relative rounded-3xl overflow-hidden cursor-pointer shadow-xl hover:shadow-2xl transition-all duration-300"
               >
                 <div className="aspect-[4/5]">
                   <img
                     src={type.image}
                     alt={type.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-115"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/50 to-slate-900/10" />
                 </div>
-                <div className="absolute bottom-0 left-0 right-0 p-6">
-                  <p className="text-blue-400 text-sm font-semibold mb-1">{type.desc}</p>
-                  <h3 className="text-2xl font-bold text-white mb-2">{type.name}</h3>
-                  <p className="text-white/70 text-sm">{type.count} Mobil Tersedia</p>
-                  <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="inline-flex items-center text-white text-sm font-medium">
+                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                  <p className="text-blue-300 text-xs md:text-sm font-semibold mb-2 uppercase tracking-wide">{type.desc}</p>
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">{type.name}</h3>
+                  <p className="text-white/75 text-sm mb-4">{type.count} Mobil Tersedia</p>
+                  <div className="opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                    <span className="inline-flex items-center text-white text-sm font-semibold bg-blue-600/80 backdrop-blur-sm px-4 py-2 rounded-full">
                       Lihat Pilihan
-                      <ArrowRight className="h-4 w-4 ml-2" />
+                      <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     </span>
                   </div>
                 </div>
@@ -277,23 +278,23 @@ export function Home() {
       </section>
 
       {/* Featured Cars */}
-      <section className="py-24 bg-white">
+      <section className="py-20 md:py-28 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12">
-            <div>
+          <div className="flex flex-col md:flex-row justify-between items-end mb-14 md:mb-16">
+            <div className="max-w-2xl">
               <motion.p
                 initial={{ opacity: 0 }}
                 whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                className="text-blue-600 font-semibold mb-3"
+                className="text-xs md:text-sm font-semibold uppercase tracking-[0.3em] text-blue-600 mb-3"
               >
-                MOBIL POPULER
+                ⭐ Mobil Populer
               </motion.p>
               <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="text-4xl font-bold text-gray-900"
+                className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 leading-tight"
               >
                 Pilihan Terbaik Bulan Ini
               </motion.h2>
@@ -305,7 +306,7 @@ export function Home() {
             >
               <Link
                 to="/cars"
-                className="group inline-flex items-center text-blue-600 font-semibold hover:text-blue-700 transition-colors mt-4 md:mt-0"
+                className="group inline-flex items-center text-blue-600 font-semibold hover:text-blue-700 transition-colors mt-6 md:mt-0"
               >
                 Lihat Semua Mobil
                 <ChevronRight className="h-5 w-5 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -314,9 +315,20 @@ export function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredCars.map((car, index) => (
-              <CarCard key={car.id} car={car} />
-            ))}
+            {loading ? (
+              Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={index}
+                  className="h-96 rounded-3xl bg-slate-100 animate-pulse"
+                />
+              ))
+            ) : featuredCars.length > 0 ? (
+              featuredCars.map((car) => <CarCard key={car.id} car={car} />)
+            ) : (
+              <div className="md:col-span-2 lg:col-span-4 rounded-3xl bg-slate-50 p-12 text-center border border-dashed border-slate-200">
+                <p className="text-lg text-slate-600">Belum ada mobil unggulan untuk ditampilkan saat ini.</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

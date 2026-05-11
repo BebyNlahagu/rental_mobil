@@ -759,3 +759,93 @@ function transformPaymentToDB(payment: Partial<Payment>): any {
     ...(payment.paymentDetails !== undefined && { payment_details: payment.paymentDetails }),
   };
 }
+
+// ==================== OAUTH ====================
+
+export async function signInWithGoogle(): Promise<{ url?: string; error?: string }> {
+  if (!supabase) {
+    return { error: 'Supabase tidak tersedia' };
+  }
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`
+    }
+  });
+
+  if (error) {
+    console.error('Google OAuth error:', error);
+    return { error: error.message };
+  }
+
+  return { url: data?.url };
+}
+
+export async function signInWithFacebook(): Promise<{ url?: string; error?: string }> {
+  if (!supabase) {
+    return { error: 'Supabase tidak tersedia' };
+  }
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'facebook',
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`
+    }
+  });
+
+  if (error) {
+    console.error('Facebook OAuth error:', error);
+    return { error: error.message };
+  }
+
+  return { url: data?.url };
+}
+
+export async function handleOAuthCallback(): Promise<User | null> {
+  if (!supabase) {
+    return null;
+  }
+
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+
+    if (error || !session?.user) {
+      console.error('OAuth callback error:', error);
+      return null;
+    }
+
+    const oauthUser = session.user;
+    
+    // Check if user exists in database
+    let user = await getUserByIdFromDB(oauthUser.id);
+
+    if (!user) {
+      // Create new user from OAuth data
+      const newUser: DBUser = {
+        id: oauthUser.id,
+        name: oauthUser.user_metadata?.full_name || oauthUser.email?.split('@')[0] || 'User',
+        email: oauthUser.email || '',
+        phone: oauthUser.user_metadata?.phone_number,
+        role: 'customer',
+        avatar: oauthUser.user_metadata?.avatar_url || `https://ui-avatars.com/api/?name=${oauthUser.email}&background=random`,
+        createdAt: new Date().toISOString()
+      };
+
+      user = await addUserToDB(newUser);
+    }
+
+    return user;
+  } catch (error) {
+    console.error('Error handling OAuth callback:', error);
+    return null;
+  }
+}
+
+export async function signOut(): Promise<void> {
+  if (!supabase) {
+    return;
+  }
+
+  await supabase.auth.signOut();
+}

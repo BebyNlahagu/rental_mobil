@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   Search, Filter, Eye, CheckCircle, XCircle, Calendar,
   ChevronLeft, ChevronRight, Download, MoreHorizontal,
-  Clock, Car, User, CreditCard, MapPin, Plus, RotateCcw
+  Clock, Car, User, CreditCard, MapPin
 } from 'lucide-react';
 import { formatCurrency, formatDate, getStatusColor, getStatusLabel } from '../../lib/utils';
 import { updateBookingInDB, isSupabaseAvailable } from '../../lib/supabase';
@@ -44,56 +44,6 @@ export function ManageBookings() {
       b.id === bookingId ? { ...b, status: newStatus as Booking['status'] } : b
     );
     updateBookings(updated);
-  };
-
-  const createTestBooking = () => {
-    const testBooking: Booking = {
-      id: 'BK-TEST-' + Date.now(),
-      carId: '1',
-      car: {
-        id: '1',
-        name: 'Toyota Avanza',
-        brand: 'Toyota',
-        model: 'Avanza',
-        year: 2024,
-        type: 'compact' as const,
-        transmission: 'automatic' as const,
-        fuelType: 'petrol' as const,
-        seats: 7,
-        luggage: 3,
-        pricePerDay: 350000,
-        images: ['https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800'],
-        features: ['AC', 'Power Steering', 'ABS', 'Airbags'],
-        description: 'Mobil keluarga yang nyaman.',
-        availability: true,
-        rating: 4.5,
-        reviewCount: 128,
-        location: 'Jakarta'
-      },
-      customerName: 'Test Customer',
-      customerEmail: 'test@example.com',
-      customerPhone: '081234567890',
-      pickupLocation: 'Jakarta',
-      dropoffLocation: 'Jakarta',
-      pickupDate: '2024-12-25',
-      pickupTime: '10:00',
-      dropoffDate: '2024-12-27',
-      dropoffTime: '10:00',
-      totalDays: 2,
-      basePrice: 700000,
-      insuranceFee: 0,
-      additionalServices: [],
-      totalPrice: 700000,
-      status: 'pending',
-      paymentStatus: 'unpaid',
-      createdAt: new Date().toISOString(),
-      driverAge: 25,
-      licenseNumber: '1234567890'
-    };
-
-    const updated = [...bookings, testBooking];
-    updateBookings(updated);
-    console.log('Test booking created:', testBooking);
   };
 
   const viewDetails = (booking: Booking) => {
@@ -148,20 +98,6 @@ export function ManageBookings() {
           <p className="text-slate-500 mt-1">Kelola semua pemesanan mobil rental</p>
         </div>
         <div className="flex gap-3">
-          <button
-            onClick={refreshBookings}
-            className="flex items-center justify-center bg-green-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-green-700 transition-all"
-          >
-            <RotateCcw className="h-5 w-5 mr-2" />
-            Refresh Data
-          </button>
-          <button
-            onClick={createTestBooking}
-            className="flex items-center justify-center bg-blue-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-blue-700 transition-all"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Buat Test Booking
-          </button>
           <button
             onClick={exportCSV}
             className="flex items-center justify-center bg-white border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-medium hover:bg-slate-50 transition-all"
@@ -247,7 +183,7 @@ export function ManageBookings() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-white text-sm font-bold mr-3">
+                        <div className="w-9 h-9 rounded-full bg-linear-to-br from-blue-400 to-blue-500 flex items-center justify-center text-white text-sm font-bold mr-3">
                           {booking.customerName.charAt(0)}
                         </div>
                         <div>

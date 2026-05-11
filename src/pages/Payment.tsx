@@ -66,14 +66,12 @@ export function Payment() {
       }
 
       const updatedBooking = await updateBookingInDB(booking.id, {
-        paymentStatus: 'paid',
-        status: 'confirmed'
+        paymentStatus: 'paid'
       });
 
       const bookingForState = updatedBooking ?? {
         ...booking,
-        paymentStatus: 'paid',
-        status: 'confirmed'
+        paymentStatus: 'paid'
       };
       setBooking(bookingForState);
 
@@ -145,7 +143,7 @@ export function Payment() {
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Pembayaran Berhasil!</h1>
             <p className="text-gray-600 mb-6">
-              Pemesanan Anda telah dikonfirmasi. E-tiket telah dikirim ke email Anda.
+              Pembayaran Anda berhasil. Booking akan menunggu konfirmasi admin sebelum diproses.
             </p>
             <div className="bg-gray-50 rounded-lg p-4 mb-6">
               <p className="text-sm text-gray-600">Nomor Booking</p>
