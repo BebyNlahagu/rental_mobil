@@ -143,6 +143,11 @@ ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "blog_public_read" ON blog_posts;
 CREATE POLICY "blog_public_read" ON blog_posts FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "blog_public_write" ON blog_posts;
+CREATE POLICY "blog_public_write" ON blog_posts FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
 DROP POLICY IF EXISTS "blog_admin_all" ON blog_posts;
 CREATE POLICY "blog_admin_all" ON blog_posts FOR ALL
   USING (auth.jwt() ->> 'role' = 'admin')

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Plus, Edit3, Trash2, CheckCircle2, AlertCircle, X, Loader2 } from 'lucide-react';
-import { getBlogsFromDB, addBlogToDB, updateBlogInDB, deleteBlogFromDB } from '../../lib/supabase';
+import { getBlogsFromDB, addBlogToDB, updateBlogInDB, deleteBlogFromDB, isSupabaseAvailable } from '../../lib/supabase';
 import type { BlogPost } from '../../types';
 
 const emptyBlog: Partial<BlogPost> = {
@@ -160,6 +160,11 @@ export function ManageBlogs() {
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Kelola Blog</h1>
           <p className="mt-2 text-slate-500">Tambah, edit, dan hapus artikel blog yang tersimpan di Supabase.</p>
+          {!isSupabaseAvailable && (
+            <div className="mt-4 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Supabase belum terhubung. Artikel akan disimpan secara lokal sampai konfigurasi Supabase diatur.
+            </div>
+          )}
         </div>
 
         <button
