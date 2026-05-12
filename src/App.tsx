@@ -16,6 +16,11 @@ import { HowItWorks } from './pages/HowItWorks';
 import { Contact } from './pages/Contact';
 import { Blog } from './pages/Blog';
 import { BlogDetail } from './pages/BlogDetail';
+import { Daily } from './pages/Daily';
+import { Monthly } from './pages/Monthly';
+import { Services } from './pages/Services';
+import { Driver } from './pages/Driver';
+import { AirportTransfer } from './pages/AirportTransfer';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { AuthCallback } from './pages/AuthCallback';
@@ -68,8 +73,13 @@ function App() {
               <main className="flex-1">
                 <Routes>
                   <Route path="/" element={<Home />} />
+                  <Route path="/services" element={<Services />} />
+                  <Route path="/daily" element={<Daily />} />
                   <Route path="/cars" element={<Cars />} />
                   <Route path="/cars/:id" element={<CarDetail />} />
+                  <Route path="/monthly" element={<Monthly />} />
+                  <Route path="/driver" element={<Driver />} />
+                  <Route path="/airport" element={<AirportTransfer />} />
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:slug" element={<BlogDetail />} />
                   <Route 

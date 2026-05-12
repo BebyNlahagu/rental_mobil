@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS cars (
   features JSONB DEFAULT '[]'::jsonb,
   description TEXT,
   availability BOOLEAN DEFAULT true,
+  fleet_count INTEGER DEFAULT 1,
   rating DECIMAL(3,2) DEFAULT 4.5,
   review_count INTEGER DEFAULT 0,
   location TEXT DEFAULT 'Jakarta',
@@ -229,7 +230,7 @@ INSERT INTO cars (name, brand, model, year, type, transmission, fuel_type, seats
  '["Autopilot", "Touchscreen Display", "Premium Audio", "Supercharging", "Glass Roof", "Over-the-air Updates"]',
  'Mobil listrik terdepan dengan teknologi autopilot canggih.', true, 4.9, 38, 'Jakarta')
 ON CONFLICT DO NOTHING;
-
+ALTER TABLE cars ADD COLUMN IF NOT EXISTS fleet_count INTEGER DEFAULT 1;
 INSERT INTO users (id, name, email, role, avatar) VALUES
 ('00000000-0000-0000-0000-000000000001', 'Administrator', 'admin@rentalmobil.com', 'admin', 'https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff'),
 ('00000000-0000-0000-0000-000000000002', 'Demo User', 'user@example.com', 'customer', 'https://ui-avatars.com/api/?name=Demo+User&background=random')

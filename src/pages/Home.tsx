@@ -15,7 +15,8 @@ export function Home() {
   const [cars, setCars] = useState<CarType[]>([]);
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const featuredCars = cars.slice(0, 4);
+  const availableCars = cars.filter((car) => car.availability);
+  const featuredCars = availableCars.slice(0, 4);
 
   useEffect(() => {
     loadCars();
@@ -54,7 +55,7 @@ export function Home() {
   };
 
   const stats = [
-    { icon: Car, value: cars.length.toString(), label: 'Mobil Tersedia', suffix: '' },
+    { icon: Car, value: availableCars.length.toString(), label: 'Mobil Tersedia', suffix: '' },
     { icon: Users, value: '10K+', label: 'Pelanggan Puas', suffix: '' },
     { icon: MapPin, value: '7', label: 'Lokasi Cabang', suffix: ' Kota' },
     { icon: Star, value: '4.9', label: 'Rating Pelanggan', suffix: '/5' }
@@ -112,6 +113,33 @@ export function Home() {
     { name: 'Compact', count: 25, image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400', desc: 'Lincah di Kota' },
     { name: 'SUV', count: 20, image: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400', desc: 'Tangguh & Luas' },
     { name: 'Luxury', count: 10, image: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=400', desc: 'Mewah & Premium' }
+  ];
+
+  const serviceOffers = [
+    {
+      icon: Clock,
+      title: 'Sewa Harian',
+      description: 'Sewa mobil cepat dan fleksibel untuk kebutuhan perjalanan sehari penuh.',
+      link: '/daily'
+    },
+    {
+      icon: Car,
+      title: 'Sewa Bulanan',
+      description: 'Kontrak sewa jangka panjang dengan tarif khusus untuk perjalanan rutin dan bisnis.',
+      link: '/monthly'
+    },
+    {
+      icon: Users,
+      title: 'Driver',
+      description: 'Gunakan jasa driver profesional untuk perjalanan tanpa repot dan lebih nyaman.',
+      link: '/cars?services=4'
+    },
+    {
+      icon: MapPin,
+      title: 'Airport Transfer',
+      description: 'Jemput dan antar dari bandara dengan layanan terjadwal yang tepat waktu.',
+      link: '/cars?services=6'
+    }
   ];
 
   return (
@@ -282,6 +310,56 @@ export function Home() {
                     </span>
                   </div>
                 </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Service Options */}
+      <section className="py-20 bg-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              className="text-xs md:text-sm font-semibold uppercase tracking-[0.3em] text-blue-600 mb-3"
+            >
+              🚗 Layanan Unggulan
+            </motion.p>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900"
+            >
+              Pilih Layanan yang Sesuai dengan Kebutuhan Anda
+            </motion.h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+            {serviceOffers.map((service, index) => (
+              <motion.div
+                key={service.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="rounded-3xl bg-white p-8 shadow-lg border border-slate-200"
+              >
+                <div className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600">
+                  <service.icon className="h-7 w-7" />
+                </div>
+                <h3 className="text-2xl font-semibold text-slate-900 mb-3">{service.title}</h3>
+                <p className="text-slate-600 mb-6">{service.description}</p>
+                <Link
+                  to={service.link}
+                  className="inline-flex items-center text-blue-600 font-semibold hover:text-blue-700 transition-all"
+                >
+                  Pelajari Lebih Lanjut
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
               </motion.div>
             ))}
           </div>

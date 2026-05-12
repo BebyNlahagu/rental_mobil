@@ -50,6 +50,7 @@ export function CarFormModal({ isOpen, onClose, onSave, car, isSaving = false }:
     features: [],
     description: '',
     availability: true,
+    fleetCount: 1,
     rating: 4.5,
     reviewCount: 0,
     location: 'Jakarta'
@@ -79,6 +80,7 @@ export function CarFormModal({ isOpen, onClose, onSave, car, isSaving = false }:
         features: [],
         description: '',
         availability: true,
+        fleetCount: 1,
         rating: 4.5,
         reviewCount: 0,
         location: 'Jakarta'
@@ -96,6 +98,9 @@ export function CarFormModal({ isOpen, onClose, onSave, car, isSaving = false }:
     if (!formData.model?.trim()) newErrors.model = 'Model wajib diisi';
     if (!formData.year || formData.year < 2000 || formData.year > 2030) {
       newErrors.year = 'Tahun tidak valid';
+    }
+    if (!formData.fleetCount || formData.fleetCount < 1) {
+      newErrors.fleetCount = 'Jumlah armada harus minimal 1';
     }
     if (!formData.pricePerDay || formData.pricePerDay < 1) {
       newErrors.pricePerDay = 'Harga harus lebih dari 0';
@@ -356,6 +361,20 @@ export function CarFormModal({ isOpen, onClose, onSave, car, isSaving = false }:
                     min="1"
                     max="10"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Jumlah Armada</label>
+                  <input
+                    type="number"
+                    value={formData.fleetCount}
+                    onChange={(e) => setFormData({ ...formData, fleetCount: parseInt(e.target.value) })}
+                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 ${
+                      errors.fleetCount ? 'border-red-500' : 'border-slate-200'
+                    }`}
+                    min="1"
+                    placeholder="1"
+                  />
+                  {errors.fleetCount && <p className="mt-1 text-sm text-red-600">{errors.fleetCount}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">Harga per Hari (Rp) *</label>

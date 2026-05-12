@@ -422,6 +422,12 @@ export async function addBookingToDB(booking: Booking | Omit<Booking, 'id'>): Pr
     const bookings = loadFromStorage<Booking[]>('bookings', []);
     const updatedBookings = [...bookings, bookingWithId];
     saveToStorage('bookings', updatedBookings);
+    
+    // Reduce fleet count for pending/confirmed bookings
+    if (bookingWithId.carId && (bookingWithId.status === 'pending' || bookingWithId.status === 'confirmed')) {
+      await reduceCarFleetCount(bookingWithId.carId);
+    }
+    
     return bookingWithId;
   }
 
@@ -441,23 +447,105 @@ export async function addBookingToDB(booking: Booking | Omit<Booking, 'id'>): Pr
     const bookings = loadFromStorage<Booking[]>('bookings', []);
     const updatedBookings = [...bookings, bookingWithId];
     saveToStorage('bookings', updatedBookings);
+    
+    // Reduce fleet count for pending/confirmed bookings
+    if (bookingWithId.carId && (bookingWithId.status === 'pending' || bookingWithId.status === 'confirmed')) {
+      await reduceCarFleetCount(bookingWithId.carId);
+    }
+    
     return bookingWithId;
   }
 
+  // Reduce fleet count for pending/confirmed bookings
+  if (bookingWithId.carId && (bookingWithId.status === 'pending' || bookingWithId.status === 'confirmed')) {
+    await reduceCarFleetCount(bookingWithId.carId);
+  }
+
   return data ? transformBookingFromDB(data) : bookingWithId;
+}
+
+async function syncCarAvailabilityForBookingChange(previousBooking: Booking | null, newStatus: Booking['status'] | undefined) {
+  if (!previousBooking || !previousBooking.carId || !newStatus) {
+    return;
+  }
+
+  const previousReserved = previousBooking.status === 'confirmed' || previousBooking.status === 'active';
+  const nextReserved = newStatus === 'confirmed' || newStatus === 'active';
+
+  if (previousReserved === nextReserved) {
+    return;
+  }
+
+  const updatedAvailability = !nextReserved;
+  await updateCarInDB(previousBooking.carId, { availability: updatedAvailability });
+}
+
+async function reduceCarFleetCount(carId: string) {
+  if (!carId) return;
+
+  try {
+    const car = await getCarByIdFromDB(carId);
+    if (!car) return;
+
+    const currentFleet = car.fleetCount ?? 1;
+    const newFleet = Math.max(0, currentFleet - 1);
+    const shouldBeAvailable = newFleet > 0;
+
+    await updateCarInDB(carId, {
+      fleetCount: newFleet,
+      availability: shouldBeAvailable
+    });
+
+    console.log(`Fleet count reduced for car ${carId}: ${currentFleet} -> ${newFleet}, availability: ${shouldBeAvailable}`);
+  } catch (error) {
+    console.error(`Error reducing fleet count for car ${carId}:`, error);
+  }
+}
+
+async function increaseCarFleetCount(carId: string) {
+  if (!carId) return;
+
+  try {
+    const car = await getCarByIdFromDB(carId);
+    if (!car) return;
+
+    const currentFleet = car.fleetCount ?? 1;
+    const newFleet = currentFleet + 1;
+
+    await updateCarInDB(carId, {
+      fleetCount: newFleet,
+      availability: true
+    });
+
+    console.log(`Fleet count restored for car ${carId}: ${currentFleet} -> ${newFleet}`);
+  } catch (error) {
+    console.error(`Error increasing fleet count for car ${carId}:`, error);
+  }
 }
 
 export async function updateBookingInDB(id: string, updates: Partial<Booking>): Promise<Booking | null> {
   if (!supabase) {
     console.log('Supabase not available for updating booking');
     const bookings = loadFromStorage<Booking[]>('bookings', []);
+    const existingBooking = bookings.find((booking) => booking.id === id) || null;
     const updatedBookings = bookings.map((booking) =>
       booking.id === id ? { ...booking, ...updates } : booking
     );
     saveToStorage('bookings', updatedBookings);
-    return updatedBookings.find((booking) => booking.id === id) || null;
+
+    const updatedBooking = updatedBookings.find((booking) => booking.id === id) || null;
+    if (existingBooking) {
+      await syncCarAvailabilityForBookingChange(existingBooking, updatedBooking?.status);
+      // If booking is cancelled, restore fleet count
+      if (existingBooking.status !== 'cancelled' && updatedBooking?.status === 'cancelled') {
+        await increaseCarFleetCount(existingBooking.carId);
+      }
+    }
+
+    return updatedBooking;
   }
 
+  const existingBooking = await getBookingByIdFromDB(id);
   const dbUpdates = transformBookingToDB(updates);
 
   const { data, error } = await supabase
@@ -477,10 +565,29 @@ export async function updateBookingInDB(id: string, updates: Partial<Booking>): 
       booking.id === id ? { ...booking, ...updates } : booking
     );
     saveToStorage('bookings', updatedBookings);
-    return updatedBookings.find((booking) => booking.id === id) || null;
+
+    const updatedBooking = updatedBookings.find((booking) => booking.id === id) || null;
+    if (existingBooking) {
+      await syncCarAvailabilityForBookingChange(existingBooking, updatedBooking?.status);
+      // If booking is cancelled, restore fleet count
+      if (existingBooking.status !== 'cancelled' && updatedBooking?.status === 'cancelled') {
+        await increaseCarFleetCount(existingBooking.carId);
+      }
+    }
+
+    return updatedBooking;
   }
 
-  return data ? transformBookingFromDB(data) : null;
+  const transformed = data ? transformBookingFromDB(data) : null;
+  if (existingBooking) {
+    await syncCarAvailabilityForBookingChange(existingBooking, transformed?.status);
+    // If booking is cancelled, restore fleet count
+    if (existingBooking.status !== 'cancelled' && transformed?.status === 'cancelled') {
+      await increaseCarFleetCount(existingBooking.carId);
+    }
+  }
+
+  return transformed;
 }
 
 // ==================== PAYMENTS ====================
@@ -801,6 +908,7 @@ function transformCarFromDB(dbCar: any): Car {
     features: dbCar.features || [],
     description: dbCar.description,
     availability: dbCar.availability,
+    fleetCount: dbCar.fleet_count ?? 1,
     rating: dbCar.rating,
     reviewCount: dbCar.review_count,
     location: dbCar.location,
@@ -823,6 +931,7 @@ function transformCarToDB(car: Partial<Car>): any {
     ...(car.features !== undefined && { features: car.features }),
     ...(car.description !== undefined && { description: car.description }),
     ...(car.availability !== undefined && { availability: car.availability }),
+    ...(car.fleetCount !== undefined && { fleet_count: car.fleetCount }),
     ...(car.rating !== undefined && { rating: car.rating }),
     ...(car.reviewCount !== undefined && { review_count: car.reviewCount }),
     ...(car.location !== undefined && { location: car.location }),

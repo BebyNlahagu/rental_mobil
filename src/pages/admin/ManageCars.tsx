@@ -88,6 +88,7 @@ export function ManageCars() {
         features: carData.features || [],
         description: carData.description || '',
         availability: carData.availability ?? true,
+        fleetCount: carData.fleetCount ?? 1,
         rating: 4.5,
         reviewCount: 0,
         location: carData.location || 'Jakarta'
@@ -199,6 +200,7 @@ export function ManageCars() {
 
   const stats = [
     { label: 'Total Mobil', value: cars.length, icon: CarIcon, color: 'blue' },
+    { label: 'Jumlah Armada', value: cars.reduce((sum, car) => sum + (car.fleetCount ?? 1), 0), icon: Users, color: 'emerald' },
     { label: 'Tersedia', value: cars.filter(c => c.availability).length, icon: CheckCircle2, color: 'emerald' },
     { label: 'Disewa', value: cars.filter(c => !c.availability).length, icon: Users, color: 'amber' },
     { label: 'Total Tipe', value: new Set(cars.map(c => c.type)).size, icon: Filter, color: 'purple' }
@@ -391,6 +393,10 @@ export function ManageCars() {
                     <Fuel className="h-4 w-4 mr-1" />
                     {car.fuelType === 'electric' ? 'EV' : car.fuelType.slice(0, 3).toUpperCase()}
                   </span>
+                  <span className="flex items-center">
+                    <CarIcon className="h-4 w-4 mr-1" />
+                    {car.fleetCount ?? 1} unit
+                  </span>
                 </div>
 
                 {/* Footer */}
@@ -417,6 +423,7 @@ export function ManageCars() {
                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Mobil</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Tipe</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Spesifikasi</th>
+                <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Jumlah Armada</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Harga</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Status</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase">Aksi</th>
@@ -454,6 +461,9 @@ export function ManageCars() {
                         {car.transmission}
                       </span>
                     </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-sm font-semibold text-slate-700">{car.fleetCount ?? 1}</span>
                   </td>
                   <td className="px-6 py-4">
                     <p className="font-bold text-slate-900">{formatCurrency(car.pricePerDay)}</p>

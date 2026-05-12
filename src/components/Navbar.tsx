@@ -45,6 +45,16 @@ export function Navbar() {
     { path: '/contact', label: 'Kontak' }
   ];
 
+  const serviceLinks = [
+    { path: '/daily', label: 'Sewa Harian' },
+    { path: '/monthly', label: 'Sewa Bulanan' },
+    { path: '/driver', label: 'Driver' },
+    { path: '/airport', label: 'Airport Transfer' }
+  ];
+
+  const isServiceActive = serviceLinks.some((link) => isActive(link.path));
+  const [isServicesOpen, setIsServicesOpen] = useState(false);
+
   const handleLogout = () => {
     logout();
     setIsProfileOpen(false);
@@ -102,6 +112,48 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+
+            <div
+              className="relative"
+              onMouseEnter={() => setIsServicesOpen(true)}
+              onMouseLeave={() => setIsServicesOpen(false)}
+            >
+              <button
+                type="button"
+                className={`px-4 py-2 rounded-xl inline-flex items-center text-sm font-medium transition-all ${
+                  isServiceActive
+                    ? isPageOpaque
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'bg-white/20 text-white'
+                    : isPageOpaque
+                      ? 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Layanan
+                <ChevronDown className="h-4 w-4 ml-2" />
+              </button>
+              <AnimatePresence>
+                {isServicesOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute left-0 mt-3 w-56 rounded-3xl bg-white shadow-2xl border border-gray-200 overflow-hidden z-50"
+                  >
+                    {serviceLinks.map((service) => (
+                      <Link
+                        key={service.path}
+                        to={service.path}
+                        className="block px-4 py-3 text-sm text-gray-700 hover:bg-slate-50"
+                      >
+                        {service.label}
+                      </Link>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Admin Link */}
             {user?.role === 'admin' && (
@@ -266,6 +318,26 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
+
+              <div className="border-t pt-3">
+                <p className="px-4 text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 mb-2">
+                  Layanan
+                </p>
+                {serviceLinks.map((service) => (
+                  <Link
+                    key={service.path}
+                    to={service.path}
+                    onClick={() => setIsOpen(false)}
+                    className={`block px-4 py-3 rounded-xl text-sm font-medium ${
+                      isActive(service.path)
+                        ? 'bg-blue-50 text-blue-600'
+                        : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {service.label}
+                  </Link>
+                ))}
+              </div>
               
               {user?.role === 'admin' && (
                 <Link

@@ -265,6 +265,12 @@ export const additionalServices: AdditionalService[] = [
     name: 'Full Tank Fuel',
     price: 500000,
     description: 'BBM penuh saat pengambilan'
+  },
+  {
+    id: '6',
+    name: 'Airport Transfer',
+    price: 150000,
+    description: 'Layanan antar jemput bandara profesional dan aman'
   }
 ];
 

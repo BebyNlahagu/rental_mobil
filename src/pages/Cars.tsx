@@ -5,7 +5,7 @@ import { Filter, SlidersHorizontal, X, Loader2 } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { CarCard } from '../components/CarCard';
 import { getCarsFromDB, subscribeToCars } from '../lib/supabase';
-import { carTypes } from '../data/cars';
+import { additionalServices, carTypes } from '../data/cars';
 import { formatCurrency } from '../lib/utils';
 import type { Car, SearchFilters } from '../types';
 
@@ -14,6 +14,9 @@ export function Cars() {
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
+
+  const serviceIds = searchParams.get('services')?.split(',').filter(Boolean) || [];
+  const selectedServices = additionalServices.filter(s => serviceIds.includes(s.id));
 
   const [filters, setFilters] = useState<SearchFilters>({
     location: searchParams.get('location') || '',
@@ -56,6 +59,7 @@ export function Cars() {
 
   const filteredCars = useMemo(() => {
     let result = [...cars];
+    result = result.filter(car => car.availability);
 
     if (filters.carType.length > 0) {
       result = result.filter(car => filters.carType.includes(car.type));
@@ -144,6 +148,14 @@ export function Cars() {
             <p className="text-gray-600">
               {filteredCars.length} mobil tersedia untuk tanggal yang Anda pilih
             </p>
+            {selectedServices.length > 0 && (
+              <div className="mt-4 rounded-2xl bg-blue-50 border border-blue-100 p-4 text-blue-800">
+                <p className="font-semibold">Layanan Tambahan Dipilih:</p>
+                <p className="text-sm">
+                  {selectedServices.map((service) => service.name).join(', ')} akan dibawa saat memilih mobil.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 

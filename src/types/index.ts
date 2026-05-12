@@ -16,6 +16,7 @@ export interface Car {
   features: string[];
   description: string;
   availability: boolean;
+  fleetCount?: number;
   status?: 'Tersedia' | 'Terjual' | 'Dipesan';
   condition?: 'Baru' | 'Bekas';
   rating: number;

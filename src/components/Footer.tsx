@@ -13,7 +13,8 @@ export function Footer() {
       { label: 'Tentang Kami', path: '/about' },
       { label: 'Karir', path: '/careers' },
       { label: 'Blog', path: '/blog' },
-      { label: 'Partner', path: '/partners' }
+      { label: 'Partner', path: '/partners' },
+      { label: 'Layanan', path: '/services' }
     ],
     support: [
       { label: 'Pusat Bantuan', path: '/help' },
@@ -22,7 +23,7 @@ export function Footer() {
       { label: 'FAQ', path: '/faq' }
     ],
     services: [
-      { label: 'Sewa Harian', path: '/cars' },
+      { label: 'Sewa Harian', path: '/daily' },
       { label: 'Sewa Bulanan', path: '/monthly' },
       { label: 'Driver', path: '/driver' },
       { label: 'Airport Transfer', path: '/airport' }

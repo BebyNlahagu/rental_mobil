@@ -21,6 +21,7 @@ const defaultCars: Car[] = [
     features: ['AC', 'Power Steering', 'ABS', 'Airbags', 'Audio System', 'Bluetooth'],
     description: 'Mobil keluarga yang nyaman dan irit bahan bakar.',
     availability: true,
+    fleetCount: 1,
     rating: 4.5,
     reviewCount: 128,
     location: 'Jakarta'
@@ -41,6 +42,7 @@ const defaultCars: Car[] = [
     features: ['AC', 'Power Steering', 'ABS', 'Airbags', 'USB Port'],
     description: 'Mobil city car yang lincah dan hemat bahan bakar.',
     availability: true,
+    fleetCount: 1,
     rating: 4.3,
     reviewCount: 95,
     location: 'Jakarta'
@@ -61,6 +63,7 @@ const defaultCars: Car[] = [
     features: ['4WD', 'Leather Seats', 'Sunroof', 'GPS Navigation', 'Premium Audio', 'Cruise Control', 'Parking Camera'],
     description: 'SUV tangguh untuk petualangan Anda.',
     availability: true,
+    fleetCount: 1,
     rating: 4.8,
     reviewCount: 76,
     location: 'Jakarta'
@@ -81,6 +84,7 @@ const defaultCars: Car[] = [
     features: ['4WD', 'Leather Seats', 'Sunroof', 'GPS Navigation', 'Premium Audio', 'Cruise Control', 'Parking Sensors'],
     description: 'Premium SUV dengan kenyamanan kelas atas.',
     availability: true,
+    fleetCount: 1,
     rating: 4.7,
     reviewCount: 89,
     location: 'Jakarta'
@@ -101,6 +105,7 @@ const defaultCars: Car[] = [
     features: ['AC', 'Power Steering', 'ABS', 'Airbags', 'Audio System', 'Bluetooth', 'Reverse Camera'],
     description: 'Crossover SUV yang stylish dengan interior luas.',
     availability: true,
+    fleetCount: 1,
     rating: 4.6,
     reviewCount: 112,
     location: 'Jakarta'
@@ -121,6 +126,7 @@ const defaultCars: Car[] = [
     features: ['Leather Seats', 'Sunroof', 'Premium Audio', 'GPS Navigation', 'Auto Parking', '360 Camera', 'Heated Seats'],
     description: 'Mobil mewah dengan performa superior dan kenyamanan premium.',
     availability: true,
+    fleetCount: 1,
     rating: 4.9,
     reviewCount: 45,
     location: 'Jakarta'
@@ -141,6 +147,7 @@ const defaultCars: Car[] = [
     features: ['AC', 'Audio System', 'USB Charging', 'Reclining Seats', 'Large Luggage Space'],
     description: 'Van besar ideal untuk rombongan atau perjalanan grup.',
     availability: true,
+    fleetCount: 1,
     rating: 4.4,
     reviewCount: 67,
     location: 'Jakarta'
@@ -161,6 +168,7 @@ const defaultCars: Car[] = [
     features: ['Hybrid Engine', 'Leather Seats', 'Premium Audio', 'GPS Navigation', 'Cruise Control', 'Lane Assist'],
     description: 'Sedan hybrid yang elegan dan ramah lingkungan.',
     availability: true,
+    fleetCount: 1,
     rating: 4.7,
     reviewCount: 54,
     location: 'Jakarta'
@@ -181,6 +189,7 @@ const defaultCars: Car[] = [
     features: ['Autopilot', 'Touchscreen Display', 'Premium Audio', 'Supercharging', 'Glass Roof', 'Over-the-air Updates'],
     description: 'Mobil listrik terdepan dengan teknologi autopilot canggih.',
     availability: true,
+    fleetCount: 1,
     rating: 4.9,
     reviewCount: 38,
     location: 'Jakarta'
