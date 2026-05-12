@@ -14,6 +14,8 @@ import { MyBookings } from './pages/MyBookings';
 import { Scan } from './pages/Scan';
 import { HowItWorks } from './pages/HowItWorks';
 import { Contact } from './pages/Contact';
+import { Blog } from './pages/Blog';
+import { BlogDetail } from './pages/BlogDetail';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { AuthCallback } from './pages/AuthCallback';
@@ -22,6 +24,7 @@ import { Dashboard } from './pages/admin/Dashboard';
 import { ManageCars } from './pages/admin/ManageCars';
 import { ManageBookings } from './pages/admin/ManageBookings';
 import { ManagePayments } from './pages/admin/ManagePayments';
+import { ManageBlogs } from './pages/admin/ManageBlogs';
 import { Users } from './pages/admin/Users';
 import { Settings } from './pages/admin/Settings';
 
@@ -49,6 +52,7 @@ function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="cars" element={<ManageCars />} />
+          <Route path="blogs" element={<ManageBlogs />} />
           <Route path="bookings" element={<ManageBookings />} />
           <Route path="payments" element={<ManagePayments />} />
           <Route path="users" element={<Users />} />
@@ -66,6 +70,8 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/cars" element={<Cars />} />
                   <Route path="/cars/:id" element={<CarDetail />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:slug" element={<BlogDetail />} />
                   <Route 
                     path="/booking" 
                     element={

@@ -8,16 +8,18 @@ import {
 import { SEO, generateLocalBusinessStructuredData } from '../components/SEO';
 import { SearchBox } from '../components/SearchBox';
 import { CarCard } from '../components/CarCard';
-import { getCarsFromDB, subscribeToCars } from '../lib/supabase';
-import type { Car as CarType } from '../types';
+import { getCarsFromDB, subscribeToCars, getBlogsFromDB } from '../lib/supabase';
+import type { Car as CarType, BlogPost } from '../types';
 
 export function Home() {
   const [cars, setCars] = useState<CarType[]>([]);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const featuredCars = cars.slice(0, 4);
 
   useEffect(() => {
     loadCars();
+    loadBlogPosts();
     
     // Subscribe to realtime updates
     const unsubscribe = subscribeToCars((updatedCars) => {
@@ -39,6 +41,15 @@ export function Home() {
       console.error('Error loading cars:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadBlogPosts = async () => {
+    try {
+      const data = await getBlogsFromDB();
+      setPosts(data.slice(0, 3));
+    } catch (error) {
+      console.error('Error loading blog posts:', error);
     }
   };
 
@@ -327,6 +338,94 @@ export function Home() {
             ) : (
               <div className="md:col-span-2 lg:col-span-4 rounded-3xl bg-slate-50 p-12 text-center border border-dashed border-slate-200">
                 <p className="text-lg text-slate-600">Belum ada mobil unggulan untuk ditampilkan saat ini.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Blog Preview */}
+      <section className="py-20 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-14 md:mb-16">
+            <div className="max-w-2xl">
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                className="text-xs md:text-sm font-semibold uppercase tracking-[0.3em] text-blue-600 mb-3"
+              >
+                💡 Insight & Tips
+              </motion.p>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 leading-tight"
+              >
+                Artikel Terbaru dari Blog Kami
+              </motion.h2>
+            </div>
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              <Link
+                to="/blog"
+                className="group inline-flex items-center text-blue-600 font-semibold hover:text-blue-700 transition-colors mt-6 md:mt-0"
+              >
+                Lihat Semua Artikel
+                <ChevronRight className="h-5 w-5 ml-1 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </motion.div>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-3">
+            {posts.length > 0 ? (
+              posts.map((post, index) => (
+                <motion.article
+                  key={post.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className="overflow-hidden rounded-3xl bg-white shadow-xl border border-slate-200"
+                >
+                  <img
+                    src={post.image}
+                    alt={post.title}
+                    className="h-56 w-full object-cover"
+                  />
+                  <div className="p-6">
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {post.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-xs font-semibold"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <h3 className="text-2xl font-semibold text-slate-900 mb-3">{post.title}</h3>
+                    <p className="text-slate-600 mb-5 line-clamp-3">{post.excerpt}</p>
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-slate-500">
+                      <span>{post.author}</span>
+                      <span>{post.date} · {post.readingTime}</span>
+                    </div>
+                    <Link
+                      to={`/blog/${post.slug}`}
+                      className="inline-flex items-center justify-center mt-6 rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    >
+                      Baca Selengkapnya
+                    </Link>
+                  </div>
+                </motion.article>
+              ))
+            ) : (
+              <div className="md:col-span-3 rounded-3xl bg-white p-12 text-center border border-slate-200">
+                <p className="text-lg text-slate-600">Belum ada artikel blog untuk ditampilkan.</p>
               </div>
             )}
           </div>

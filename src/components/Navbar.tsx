@@ -40,6 +40,7 @@ export function Navbar() {
   const navLinks = [
     { path: '/', label: 'Beranda' },
     { path: '/cars', label: 'Daftar Mobil' },
+    { path: '/blog', label: 'Blog' },
     { path: '/how-it-works', label: 'Cara Kerja' },
     { path: '/contact', label: 'Kontak' }
   ];

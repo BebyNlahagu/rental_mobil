@@ -1,7 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 import { getCars as getCarStorage, saveCars as saveCarStorage } from './carStorage';
 import { generateBookingId, generateTransactionId, loadFromStorage, saveToStorage } from './utils';
-import type { Car, Booking, Payment, User } from '../types';
+import { blogPosts as defaultBlogPosts } from '../data/blog';
+import type { BlogPost, Car, Booking, Payment, User } from '../types';
 
 type DBUser = User & {
   password?: string;
@@ -161,6 +162,165 @@ export async function deleteCarFromDB(id: string): Promise<boolean> {
     const updated = cars.filter(c => c.id !== id);
     saveCarStorage(updated);
     return true;
+  }
+
+  return true;
+}
+
+// ==================== BLOG POSTS ====================
+
+function transformBlogFromDB(row: any): BlogPost {
+  return {
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt,
+    content: row.content,
+    author: row.author,
+    date: row.date,
+    readingTime: row.reading_time,
+    image: row.image,
+    tags: Array.isArray(row.tags) ? row.tags : [],
+    createdAt: row.created_at,
+    updatedAt: row.updated_at
+  };
+}
+
+export async function getBlogsFromDB(): Promise<BlogPost[]> {
+  if (!supabase) {
+    console.log('Supabase not available, using local blog storage');
+    return loadFromStorage<BlogPost[]>('blogPosts', defaultBlogPosts);
+  }
+
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching blogs from Supabase:', error);
+    return loadFromStorage<BlogPost[]>('blogPosts', defaultBlogPosts);
+  }
+
+  return data?.map(transformBlogFromDB) || [];
+}
+
+export async function getBlogBySlugFromDB(slug: string): Promise<BlogPost | null> {
+  if (!supabase) {
+    console.log('Supabase not available, using local blog storage');
+    const stored = loadFromStorage<BlogPost[]>('blogPosts', defaultBlogPosts);
+    return stored.find((post) => post.slug === slug) || null;
+  }
+
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (error) {
+    console.error('Error fetching blog by slug from Supabase:', error);
+    const stored = loadFromStorage<BlogPost[]>('blogPosts', defaultBlogPosts);
+    return stored.find((post) => post.slug === slug) || null;
+  }
+
+  return data ? transformBlogFromDB(data) : null;
+}
+
+export async function addBlogToDB(blog: Omit<BlogPost, 'id' | 'createdAt' | 'updatedAt'>): Promise<BlogPost | null> {
+  if (!supabase) {
+    console.log('Supabase not available, saving blog to local storage');
+    const stored = loadFromStorage<BlogPost[]>('blogPosts', defaultBlogPosts);
+    const newBlog: BlogPost = { ...blog, id: Date.now().toString() };
+    const updated = [newBlog, ...stored];
+    saveToStorage('blogPosts', updated);
+    return newBlog;
+  }
+
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .insert([{
+      slug: blog.slug,
+      title: blog.title,
+      excerpt: blog.excerpt,
+      content: blog.content,
+      author: blog.author,
+      date: blog.date,
+      reading_time: blog.readingTime,
+      image: blog.image,
+      tags: blog.tags
+    }])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error adding blog to Supabase:', error);
+    const stored = loadFromStorage<BlogPost[]>('blogPosts', defaultBlogPosts);
+    const newBlog: BlogPost = { ...blog, id: Date.now().toString() };
+    const updated = [newBlog, ...stored];
+    saveToStorage('blogPosts', updated);
+    return newBlog;
+  }
+
+  return data ? transformBlogFromDB(data) : null;
+}
+
+export async function updateBlogInDB(id: string, updates: Partial<BlogPost>): Promise<BlogPost | null> {
+  if (!supabase) {
+    console.log('Supabase not available, updating local blog storage');
+    const stored = loadFromStorage<BlogPost[]>('blogPosts', defaultBlogPosts);
+    const updated = stored.map((post) => post.id === id ? { ...post, ...updates } : post);
+    saveToStorage('blogPosts', updated);
+    return updated.find((post) => post.id === id) || null;
+  }
+
+  const dbUpdates = {
+    slug: updates.slug,
+    title: updates.title,
+    excerpt: updates.excerpt,
+    content: updates.content,
+    author: updates.author,
+    date: updates.date,
+    reading_time: updates.readingTime,
+    image: updates.image,
+    tags: updates.tags
+  };
+
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .update(dbUpdates)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error updating blog in Supabase:', error);
+    const stored = loadFromStorage<BlogPost[]>('blogPosts', defaultBlogPosts);
+    const updated = stored.map((post) => post.id === id ? { ...post, ...updates } : post);
+    saveToStorage('blogPosts', updated);
+    return updated.find((post) => post.id === id) || null;
+  }
+
+  return data ? transformBlogFromDB(data) : null;
+}
+
+export async function deleteBlogFromDB(id: string): Promise<boolean> {
+  if (!supabase) {
+    console.log('Supabase not available, deleting local blog data');
+    const stored = loadFromStorage<BlogPost[]>('blogPosts', defaultBlogPosts);
+    const updated = stored.filter((post) => post.id !== id);
+    saveToStorage('blogPosts', updated);
+    return true;
+  }
+
+  const { error } = await supabase
+    .from('blog_posts')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting blog from Supabase:', error);
+    return false;
   }
 
   return true;

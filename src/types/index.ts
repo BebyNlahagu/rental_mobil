@@ -128,6 +128,21 @@ export interface Order {
   updatedAt?: string;
 }
 
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  author: string;
+  date: string;
+  readingTime: string;
+  image: string;
+  tags: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface SEOProps {
   title: string;
   description: string;

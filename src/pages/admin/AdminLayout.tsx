@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, Car, Calendar, CreditCard, Users,
   Settings, LogOut, Menu, X, ChevronDown, Bell,
-  Home, Search, QrCode
+  Home, Search, QrCode, BookOpen
 } from 'lucide-react';
 import { getCurrentUser, isAuthenticated, isAdmin, logout } from '../../lib/auth';
 import type { User } from '../../lib/auth';
@@ -12,6 +12,7 @@ import type { User } from '../../lib/auth';
 const sidebarLinks = [
   { path: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
   { path: '/admin/cars', icon: Car, label: 'Kelola Mobil' },
+  { path: '/admin/blogs', icon: BookOpen, label: 'Kelola Blog' },
   { path: '/admin/bookings', icon: Calendar, label: 'Pemesanan' },
   { path: '/scan', icon: QrCode, label: 'Scan Tiket' },
   { path: '/admin/payments', icon: CreditCard, label: 'Pembayaran' },
